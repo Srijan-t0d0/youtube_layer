@@ -3,10 +3,11 @@ const express = require('express');
 const cors = require('cors')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const bcrypt = require('bcrypt');
 const User = require('./models/userModels.js');
 const app = express();
 const port = 3000;
+require('dotenv').config();
 
 app.use(cors())
 app.use(express.json());
@@ -68,11 +69,13 @@ app.post('/signup' ,async (req , res) => {
         if (existingUser) {
           return res.status(409).json({ message: 'User already exists' });
         }
-    
+        
+        const hashedPassword = await bcrypt.hash(password,10)
+
         // Create a new user
         const newUser = new User({
           username,
-          password, // Don't worry about password hashing for now
+          password:hashedPassword, // Don't worry about password hashing for now
           role,
           email
         });
@@ -91,12 +94,24 @@ app.post('/signup' ,async (req , res) => {
 
 })
 
-app.post('/login', exists_in_db_check , (req,res) => {
-    const { username } = req.userFromDb;
+app.post('/login', exists_in_db_check , async (req,res) => {
+    const { username, password } = req.body;
 
-    const token = jwt.sign({ username: username, role: req.userFromDb.role }, secretKey, { expiresIn: '1h' });
-  
-    res.json({ message: 'Login successful', token });
+    try {
+        const isPasswordValid = await bcrypt.compare(password, req.userFromDb.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Incorrect username or password' });
+        }
+
+        const token = jwt.sign({ username: username, role: req.userFromDb.role }, secretKey, { expiresIn: '1h' });
+
+        res.json({ message: 'Login successful', token });
+
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 })
 
 // Start the server
