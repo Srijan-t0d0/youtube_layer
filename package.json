@@ -1,0 +1,21 @@
+{
+  "name": "youtube_layer",
+  "version": "1.0.0",
+  "description": "A layer between youtubers and their editors",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+  
+}
