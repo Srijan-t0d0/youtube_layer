@@ -4,12 +4,11 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
+const User = require('./models/userModels.js');
 const app = express();
 const port = 3000;
 
-
-app.use(cors)
+app.use(cors())
 app.use(express.json());
 
 
@@ -60,7 +59,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signup' ,async (req , res) => {
-    const {username , password , role} = req.body
+    const {username , password , role , email} = req.body
+    console.log(req.body)
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username });
@@ -74,6 +74,7 @@ app.post('/signup' ,async (req , res) => {
           username,
           password, // Don't worry about password hashing for now
           role,
+          email
         });
     
         // Save the new user to the database
@@ -90,7 +91,7 @@ app.post('/signup' ,async (req , res) => {
 
 })
 
-app.post('/login',authenticateJwt, exists_in_db_check , (req,res) => {
+app.post('/login', exists_in_db_check , (req,res) => {
     const { username } = req.userFromDb;
 
     const token = jwt.sign({ username: username, role: req.userFromDb.role }, secretKey, { expiresIn: '1h' });
