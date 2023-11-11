@@ -65,10 +65,12 @@ const registerUser = async (req, res) => {
 };
 
 export const googleAuth = passport.authenticate("google", {
+  session: false,
   scope: ["profile", "email"],
 });
 
 export const googleAuthCallback = passport.authenticate("google", {
+  session: false,
   failureRedirect: "/",
 });
 
