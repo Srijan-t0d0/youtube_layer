@@ -1,4 +1,4 @@
-import Video from "../models/videoModel";
+import Video from "../models/videoModel.js";
 
 const rawUpload = async (req, res) => {
         try {

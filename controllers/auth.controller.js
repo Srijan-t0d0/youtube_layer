@@ -1,17 +1,19 @@
-import User from "../models/userModels";
+import User from "../models/userModels.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
+    const user = await User.findOne({username})
     // Add a check if username or password is provided
     try {
-        const isPasswordValid = await bcrypt.compare(password, req.userFromDb.password);
+        const isPasswordValid = bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Incorrect username or password' });
         }
 
-        const token = jwt.sign({ username: username, role: req.userFromDb.role }, secretKey, { expiresIn: '1h' });
+        console.log(req.userFromDb)
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         return res.status(201).json({ message: 'Login successful', token });
     } catch (error) {
@@ -22,7 +24,6 @@ const loginUser = async (req, res) => {
 
 const registerUser = async (req , res) => {
     const {username , password , role , email} = req.body
-    console.log(req.body)
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username });
@@ -41,9 +42,9 @@ const registerUser = async (req , res) => {
             email
         })
         
-        const token = jwt.sign({ username: savedUser.username, role: savedUser.role }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: savedUser._id, role: savedUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        return res.status(201).json({ message: 'User created successfully', token });
+        return res.status(201).json({ message: 'User created successfully', token:token });
     }   catch (error) {
         console.error('Error creating user:', error);
         return res.status(500).json({ message: 'Internal Server Error' });

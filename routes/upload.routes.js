@@ -9,10 +9,10 @@ const router = Router()
 
 router.route("/edited").post(
         authenticateJwt, exists_in_db_check,
-        rawVideoUpload.single('video'), editedUpload)
+        editedVideoUpload.single('video'), editedUpload)
 
 router.route("/raw").post(
         authenticateJwt, exists_in_db_check, 
-        editedVideoUpload.single("video"), rawUpload)
+        rawVideoUpload.single("video"), rawUpload)
 
 export default router

@@ -1,9 +1,8 @@
 // index.js
 import express from "express"
 import cors from "cors"
-import mongoose from "mongoose"
 import dotenv from "dotenv"
-
+import connectDB from './config/db.js'
 import authRouter from "./routes/auth.routes.js"
 import uploadRouter from "./routes/upload.routes.js" 
  
@@ -16,10 +15,8 @@ dotenv.config()
 app.use(cors())
 app.use(express.json());
 
+connectDB()
 
-const secretKey = 'your-secret-key';
-
-mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // Basic route
 app.get('/', (req, res) => {

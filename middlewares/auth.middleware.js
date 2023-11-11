@@ -1,19 +1,15 @@
 import jwt from "jsonwebtoken";
-import User from "../models/userModels";
+import User from "../models/userModels.js";
 
 const authenticateJwt = (req, res, next) => {
     const authHeader = req.headers.authorization;
-    console.log(authHeader)
     if (authHeader) {
       const token = authHeader.split(' ')[1];
-      console.log(token)
-      jwt.verify(token, secretKey, (err, user) => {
+      jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
-          console.log(err)
           return res.sendStatus(403);
         }
-        req.user = user;
-        req.body = {username:user.username}
+        req.user_Id = user.username;
         next();
       });
     } else {
@@ -23,11 +19,9 @@ const authenticateJwt = (req, res, next) => {
 
 // TODO: Change this name please
 const exists_in_db_check = async (req, res, next) => {
-  const { username } = req.body;
-  console.log(req.body)
-  console.log(username)
+  const user_Id = req.user_Id
   try {
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ user_Id });
 
     if (!existingUser) {
       return res.status(404).json({ message: 'User not found' });
