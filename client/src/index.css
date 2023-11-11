@@ -1,0 +1,18 @@
+*,
+*::after,
+*::before {
+    box-sizing: content-box;
+    margin: 0;
+    padding: 0;
+}
+
+body,
+#root-layout {
+    min-height: 100vh;
+}
+
+#root-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
