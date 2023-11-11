@@ -1,49 +1,49 @@
 // passport.js
-import { use, serializeUser, deserializeUser } from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { sign } from 'jsonwebtoken'; // Import JWT library
-import User, { authenticate, serializeUser as _serializeUser, deserializeUser as _deserializeUser, findOne, findById } from './models/user';
 
-use(new LocalStrategy(authenticate()));
-serializeUser(_serializeUser());
-deserializeUser(_deserializeUser());
+import User from "../models/userModels.js";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import passport from "passport";
+import jwt from "jsonwebtoken";
 
-use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3001/auth/google/callback'
-},
-(accessToken, refreshToken, profile, done) => {
-  findOne({ googleId: profile.id }, (err, user) => {
-    if (err) return done(err);
-    if (user) return done(null, user);
-    const newUser = new User({
-      googleId: profile.id,
-      username: profile.displayName
-    });
-    newUser.save((err) => {
-      if (err) return done(err);
-      return done(null, newUser);
-    });
-  });
-}));
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if the user already exists in the database
+        console.log(profile);
+        console.log(profile._json.id);
+        let userFromDB = await User.findOne({ googleId: profile.id });
 
-// JWT strategy
-use('jwt', new JwtStrategy({
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET // Replace with your secret key
-}, (jwt_payload, done) => {
-  findById(jwt_payload.sub, (err, user) => {
-    if (err) return done(err, false);
-    if (user) return done(null, user);
-    return done(null, false);
-  });
-}));
+        if (!userFromDB) {
+          // If user doesn't exist, create a new user in the database
+          userFromDB = new User({
+            googleId: profile.id,
+            email: profile._json.email,
+            // Add other properties based on your User model schema
+          });
 
-// Generate JWT
-function generateToken(user) {
-  return sign({ userId: user._id }, 'your-secret-key', { expiresIn: '1h' });
-}
+          // Save the new user to the database
+          await userFromDB.save();
+        }
 
-export default { passport, generateToken };
+        // Generate a JWT token
+        const token = jwt.sign(
+          { userId: userFromDB._id },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h", // Set an expiration time as needed
+          }
+        );
+
+        return done(null, { user: userFromDB, token }); // Pass both user and token to the callback
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
