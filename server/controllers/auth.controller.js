@@ -32,6 +32,7 @@ export const loginUser = async (req, res) => {
 
 export const registerUser = async (req, res) => {
     const { username, password, role, email } = req.body;
+    console.log(req.body);
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username });

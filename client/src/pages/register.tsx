@@ -11,6 +11,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    SelectChangeEvent,
 } from '@mui/material';
 
 import { Link } from 'react-router-dom';
@@ -47,12 +48,20 @@ const Register = () => {
             console.log('registering user...');
             const res = await registerUser(formData);
             console.log(res);
+            const { message, token } = res.data;
+            console.log(message, token);
+            localStorage.setItem('token', token);
         } catch (error) {
             console.log('[REGISTER] ', error);
         }
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, name } = event.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleRoleChange = (event: SelectChangeEvent) => {
         const { value, name } = event.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -114,9 +123,8 @@ const Register = () => {
                             id="roleLabel"
                             name="role"
                             label="Role"
-                            // TODO: Fix this error
-                            onChange={handleChange}
-                            value={formData.role || ''}
+                            onChange={handleRoleChange}
+                            value={formData.role}
                         >
                             <MenuItem value={'youtuber'}>Youtuber</MenuItem>
                             <MenuItem value={'editor'}>Editor</MenuItem>
