@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     Button,
     CssBaseline,
@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 
 import { Link } from 'react-router-dom';
-import { registerUser } from '../api/auth';
+import { AuthContext } from '../context/AuthContextProvider';
 
 interface RegisterFormData {
     username: string;
@@ -26,7 +26,7 @@ interface RegisterFormData {
 
 const Register = () => {
     // const [loading, setLoading] = useState(false);
-
+    const { register } = useContext(AuthContext);
     const [formData, setFormData] = useState<RegisterFormData>({
         username: '',
         email: '',
@@ -46,11 +46,7 @@ const Register = () => {
 
         try {
             console.log('registering user...');
-            const res = await registerUser(formData);
-            console.log(res);
-            const { message, token } = res.data;
-            console.log(message, token);
-            localStorage.setItem('token', token);
+            register(formData);
         } catch (error) {
             console.log('[REGISTER] ', error);
         }
