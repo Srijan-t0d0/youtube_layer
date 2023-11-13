@@ -13,8 +13,7 @@ import {
     MenuItem,
     SelectChangeEvent,
 } from '@mui/material';
-
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContextProvider';
 
 interface RegisterFormData {
@@ -26,6 +25,7 @@ interface RegisterFormData {
 
 const Register = () => {
     // const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
     const { register } = useContext(AuthContext);
     const [formData, setFormData] = useState<RegisterFormData>({
         username: '',
@@ -46,7 +46,9 @@ const Register = () => {
 
         try {
             console.log('registering user...');
-            register(formData);
+            await register(formData);
+            history.forward();
+            navigate('/');
         } catch (error) {
             console.log('[REGISTER] ', error);
         }

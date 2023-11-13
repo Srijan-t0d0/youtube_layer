@@ -36,7 +36,6 @@ const reducer = (state: AuthState, action: AuthAction): AuthState => {
                 token: action.payload.token,
                 isLoading: action.payload.isLoading,
             };
-            return state;
         case 'LOGOUT':
             console.log('hi from reducer logout');
             return state;
