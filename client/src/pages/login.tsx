@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 
 import { Link } from 'react-router-dom';
+import { loginUser } from '../api/auth';
 
 interface LoginFormData {
     username: string;
@@ -24,11 +25,13 @@ const Login = () => {
         password: '',
     });
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!formData.username || !formData.password) return;
         // submitForm;
+        const res = await loginUser(formData);
+        console.log(res);
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

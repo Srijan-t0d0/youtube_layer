@@ -7,7 +7,8 @@ import Register from './pages/register';
 // Components
 import RootLayout from './components/root-layout';
 import PrivateRoute from './components/private-route.tsx';
-
+import PublicRoute from './components/public-route.tsx';
+import Header from './components/headet.tsx';
 //context
 
 import AuthContextProvider from './context/AuthContextProvider.tsx';
@@ -21,12 +22,19 @@ function App() {
                         path="/"
                         element={
                             <PrivateRoute>
-                                <h1>Home</h1>
+                                <Header />
                             </PrivateRoute>
                         }
                     />
 
-                    <Route path="/sign-in" element={<Login />} />
+                    <Route
+                        path="/sign-in"
+                        element={
+                            <PublicRoute>
+                                <Login />
+                            </PublicRoute>
+                        }
+                    />
                     <Route path="/sign-up" element={<Register />} />
                 </Routes>
             </RootLayout>

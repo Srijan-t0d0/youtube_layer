@@ -1,6 +1,6 @@
 import { ReactNode, useReducer } from 'react';
 import { createContext } from 'react';
-import { RegisterUser, registerUser } from '../api/auth';
+import { RegisterUserInterface, loginUser, registerUser } from '../api/auth';
 
 interface AuthState {
     isLoading: boolean;
@@ -21,7 +21,9 @@ type AuthAction =
 interface AuthContextType {
     state: AuthState;
     dispatch: React.Dispatch<AuthAction>;
-    register: (data: RegisterUser) => void;
+    register: (data: RegisterUserInterface) => void;
+    login: (data: { username: string; password: string }) => void;
+    logout: () => void;
 }
 const reducer = (state: AuthState, action: AuthAction): AuthState => {
     switch (action.type) {
@@ -58,13 +60,14 @@ const AuthContextProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
     const [state, dispatch] = useReducer(reducer, authState);
 
-    const register = async (data: RegisterUser) => {
+    const register = async (data: RegisterUserInterface) => {
         dispatch({
             type: 'REGISTER',
             payload: { isLoggedIn: false, token: '', isLoading: true },
         });
         const res = await registerUser(data);
         const token = res.data.token;
+        console.log(token);
         localStorage.setItem('token', token);
         dispatch({
             type: 'REGISTER',
@@ -72,8 +75,20 @@ const AuthContextProvider: React.FC<{ children: ReactNode }> = ({
         });
     };
 
+    const login = async (data: { username: string; password: string }) => {
+        const res = await loginUser(data);
+        console.log(res);
+    };
+
+    const logout = async () => {
+        localStorage.clear();
+        // await logoutUser()
+    };
+
     return (
-        <AuthContext.Provider value={{ state, dispatch, register }}>
+        <AuthContext.Provider
+            value={{ state, dispatch, register, login, logout }}
+        >
             {children}
         </AuthContext.Provider>
     );
